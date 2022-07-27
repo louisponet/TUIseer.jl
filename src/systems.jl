@@ -72,6 +72,10 @@ function Overseer.update(::ModeRunner, tui::AbstractLedger)
     end
 end
 
+@component struct Renderable
+    r
+end
+
 @component struct Text
     text::String
 end
@@ -91,31 +95,23 @@ end
 Grid(; kwargs...) = Grid(Dict(kwargs))
 
 struct SceneDrawer <: System end
-Overseer.requested_components(::SceneDrawer) = (Grid, Panel, Color, Text)
+Overseer.requested_components(::SceneDrawer) = (Grid, Panel, Color, Text, Renderable)
 
 function Overseer.update(::SceneDrawer, l::AbstractLedger)
-    panels = []
     tsize = term_size(stdout)
     l[Panel][Entity(1)].options[:width] = tsize[1] 
-    l[Panel][Entity(1)].options[:height] = tsize[2] - 3 
-    for (p, es) in pools(l[Panel])
-        rends = []
-        for e in es
-            if e in l[Visible]
-                
-                if e in l[Text]
-                    r = e in l[Color] ? RenderableText(l[Text][e].text, style=l[Color][e].color) : RenderableText(l[Text][e].text)
-                    push!(rends, r)
-                end
-            end
-        end
-        if !isempty(rends)
-            push!(panels, Term.Panel(rends...; p.options...))
-        end
+    l[Panel][Entity(1)].options[:height] = tsize[2] - 3
+
+    rends = []
+    for e in @entities_in(l[Renderable] && l[Visible])
+        push!(rends, e.r)
     end
-    if !isempty(panels)
-        print(l, Term.grid(panels))
+    if !isempty(rends)
+        print(l, Term.Panel(RenderableText(l[Text][Entity(1)].text),Term.grid(rends); l[Panel][Entity(1)].options...))
+    else
+        print(l, Term.Panel(RenderableText(l[Text][Entity(1)].text); l[Panel][Entity(1)].options...))
     end
+        
 end
 
 
