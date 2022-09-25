@@ -107,9 +107,9 @@ function Overseer.update(::SceneDrawer, l::AbstractLedger)
         push!(rends, e.r)
     end
     if !isempty(rends)
-        print(l, Term.Panel(RenderableText(l[Text][Entity(1)].text),Term.grid(rends); l[Panel][Entity(1)].options...))
+        print(l, string(Term.Panel(RenderableText(l[Text][Entity(1)].text),Term.grid(rends); l[Panel][Entity(1)].options...)))
     else
-        print(l, Term.Panel(RenderableText(l[Text][Entity(1)].text); l[Panel][Entity(1)].options...))
+        print(l, string(Term.Panel(RenderableText(l[Text][Entity(1)].text); l[Panel][Entity(1)].options...)))
     end
         
 end

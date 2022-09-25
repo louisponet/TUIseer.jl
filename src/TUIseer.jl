@@ -25,7 +25,7 @@ struct TUI <: AbstractLedger
     l::Ledger
 end
 
-for fn in (:print, :show, :println)
+for fn in (:print, :show, :println, :write)
     @eval Base.$fn(io::TUI, args...) = $fn(io[FrameBuffer][1].b, args...)
 end
 
@@ -158,7 +158,7 @@ function run()
                 @info "Initialized game"
                 try
                     rawmode(term) do
-                        # Main game loop
+                        # Main loop
                         @async try
                             loop(MAIN_TUI[], event_channel)
                         catch exc
